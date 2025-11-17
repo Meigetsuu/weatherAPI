@@ -151,5 +151,5 @@ The API handles:
 **Kevin Roussel**
 *MuleSoft Developer*
 
-* LinkedIn: `[Click here](https://www.linkedin.com/in/kevin-roussel-15254178/)`
-* GitHub: `[Click here](https://github.com/Meigetsuu)`
+* LinkedIn: [Click here](https://www.linkedin.com/in/kevin-roussel-15254178/)
+* GitHub: [Click here](https://github.com/Meigetsuu)
