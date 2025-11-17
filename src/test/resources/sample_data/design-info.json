@@ -1,0 +1,12 @@
+{
+  "sampleData": {
+    "b5026321-c8a5-4bb1-8243-2a061f3ab07f": {
+      "payload": "sample_data/json.json"
+    },
+    "8e913558-1e3d-4f82-81f2-b3c56524b54c": {
+      "vars-city": "sample_data/java.dwl"
+    },
+    "0a3758db-12bd-45c8-bf68-bb67d7e6004f": {},
+    "c3d99052-d73b-4111-bc53-c372fd74c84d": {}
+  }
+}

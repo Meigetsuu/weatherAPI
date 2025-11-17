@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:vm="http://www.mulesoft.org/schema/mule/vm"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:request-config name="api.open-meteo.com_config" doc:name="HTTP Request config" doc:id="1ecfa0a2-55cf-43b2-b6dc-493f1dbf152b" basePath="/v1/forecast" >
+		<http:request-connection protocol="HTTPS" host="api.open-meteo.com" />
+		<http:default-query-params >
+			<http:query-param key="latitude" value="#[payload.latitude]" />
+			<http:query-param key="longitude" value="#[payload.longitude]" />
+			<http:query-param key="current" value="temperature_2m" />
+		</http:default-query-params>
+	</http:request-config>
+	<flow name="getCurrentTempByCity" doc:id="e8cda857-d5b7-4f03-8666-f0163167b36b" >
+		<http:listener doc:name="GET /?city=" doc:id="a850d113-3c91-47a0-954e-aee4833d0262" config-ref="HTTP_Listener_config" path="/weather" allowedMethods="GET">
+			<http:response statusCode="#[vars.httpStatus default 200]" />
+			<http:error-response statusCode="#[vars.httpStatus default 500]" />
+		</http:listener>
+		<choice doc:name="Choice" doc:id="fc193bb2-9bdb-404f-b836-76faba9bd655" >
+			<when expression="#[!isEmpty(attributes.queryParams.city)]">
+				<set-variable value="#[attributes.queryParams.city]" doc:name="city" doc:id="62e3e891-3e7e-4845-a2d1-9dcfac904a67" variableName="city" />
+				<flow-ref doc:name="Process" doc:id="fc9b53f0-8f60-4f8c-b642-2f4ca418198a" name="Process"/>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Transform Message" doc:id="a1fb6f3d-c393-40fb-8f56-533a2daad4b9" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	error: "Erreur: veuillez rensigner une ville valide."
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<set-variable value="400" doc:name="httpStatus:400" doc:id="00706c87-22a6-4c9a-8030-a819d44f244e" variableName="httpStatus" />
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="Logger" doc:id="a5b1257f-e836-44fd-86db-011d7ae367d2" message="#[payload]"/>
+	</flow>
+	<flow name="Process" doc:id="b7430f72-9747-4151-85d7-98d39815646e" >
+		<try doc:name="Try" doc:id="fed0df9f-fc01-4c60-a814-7962efd6c46c" >
+			<http:request doc:name="geocoding" doc:id="c92de349-ef70-40b0-bd67-a4cb6218fcdd" config-ref="HTTP_Request_config" path="/" />
+			<error-handler >
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="a269b23a-4faf-49cb-adbe-cdfd24b8db7d" type="ANY" >
+					<logger level="INFO" doc:name="Logger" doc:id="9addc84d-84d4-4529-b6c2-c94e1bd35437" />
+				</on-error-propagate>
+			</error-handler>
+		</try>
+		<ee:transform doc:name="Array&lt;&gt; to Object" doc:id="9d87c5b4-0423-4511-bb39-1cf4df663ce5" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{(payload.results map
+	(object, index) -> {
+		latitude: object.latitude,
+		longitude: object.longitude
+	}
+)}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<choice doc:name="Choice" doc:id="283f7d35-2145-45da-bb8e-99a3bc14ae2d" >
+			<when expression="#[payload.latitude? and payload.longitude?]" >
+				<try doc:name="Try" doc:id="4e8f6b61-6e1a-4328-8d00-524ae2e5a3b3" >
+					<http:request doc:name="api.open-meteo.com" doc:id="231d46d0-4bb1-4f88-9eae-ad2b2b298c6f" config-ref="api.open-meteo.com_config" path="/" />
+					<error-handler >
+						<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="4553c10a-de70-4544-9e86-f74d850afeb3" >
+							<logger level="INFO" doc:name="Logger" doc:id="929b4e43-16f3-4c75-aad6-e1184e18d76d" />
+						</on-error-propagate>
+					</error-handler>
+				</try>
+				<ee:transform doc:name="Temperauture message" doc:id="8e913558-1e3d-4f82-81f2-b3c56524b54c" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output text/plain
+---
+"La température dans la ville de " 
+	++ vars.city as String
+	++ " est actuellement de "
+	++ payload.current.temperature_2m
+	++ payload.current_units.temperature_2m	]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Transform Message" doc:id="0325eb7f-8182-432a-ad25-c3cb0c7712c9" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	error: "Erreur: coordonnées invalides."
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<set-variable value="400" doc:name="httpStatus:40" doc:id="5731fd7e-b35a-4b8d-ba2f-d7b24f79e8f4" variableName="httpStatus" />
+			</otherwise>
+		</choice>
+	</flow>
+</mule>

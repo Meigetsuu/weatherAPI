@@ -1,0 +1,4 @@
+%dw 2.0
+
+type auto_b7430f72_9747_4151_85d7_98d39815646e_Output_Variables_city = String | Null
+

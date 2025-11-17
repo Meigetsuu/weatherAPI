@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="bc5d576d-6fa7-412d-abef-83ff69e2d05e" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_config" doc:name="HTTP Request config" doc:id="371f83f9-ab2c-4666-b007-f8186e126668" basePath="/v1/search">
+		<http:request-connection host="geocoding-api.open-meteo.com" protocol="HTTPS"/>
+		<http:default-query-params >
+			<http:query-param key="name" value="#[vars.city]" />
+			<http:query-param key="count" value="1" />
+			<http:query-param key="language" value="fr" />
+			<http:query-param key="format" value="json" />
+		</http:default-query-params>
+	</http:request-config>
+</mule>

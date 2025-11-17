@@ -1,0 +1,97 @@
+{
+	"info": {
+		"_postman_id": "219d121b-2cc3-4c10-af20-974a9973c04e",
+		"name": "Weather Forecast",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "33054201"
+	},
+	"item": [
+		{
+			"name": "localhost:8081/weather?city=Lyon",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "client_id",
+						"value": "c05ddced9f1442a5b4f46335b810f2f1",
+						"type": "text"
+					},
+					{
+						"key": "client_secret",
+						"value": "D86c96AC942346Ccb51D50B00ED5a4B4",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "localhost:8081/weather?city=doesntexist",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"weather"
+					],
+					"query": [
+						{
+							"key": "city",
+							"value": "doesntexist"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:8081/weather?city=doesntexist",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8081/weather?city=doesntexist",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"weather"
+					],
+					"query": [
+						{
+							"key": "city",
+							"value": "doesntexist"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:8081/weather",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8081/weather",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"weather"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
