@@ -66,15 +66,9 @@ output application/json
 			<when expression="#[payload.latitude? and payload.longitude?]" >
 				<try doc:name="Try" doc:id="4e8f6b61-6e1a-4328-8d00-524ae2e5a3b3" >
 					<http:request doc:name="api.open-meteo.com" doc:id="231d46d0-4bb1-4f88-9eae-ad2b2b298c6f" config-ref="api.open-meteo.com_config" path="/" />
-					<error-handler >
-						<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="4553c10a-de70-4544-9e86-f74d850afeb3" >
-							<logger level="INFO" doc:name="Logger" doc:id="929b4e43-16f3-4c75-aad6-e1184e18d76d" />
-						</on-error-propagate>
-					</error-handler>
-				</try>
-				<ee:transform doc:name="Temperauture message" doc:id="8e913558-1e3d-4f82-81f2-b3c56524b54c" >
-					<ee:message >
-						<ee:set-payload ><![CDATA[%dw 2.0
+					<ee:transform doc:name="Temperature message" doc:id="8e913558-1e3d-4f82-81f2-b3c56524b54c">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
 output text/plain
 ---
 "La température dans la ville de " 
@@ -84,6 +78,12 @@ output text/plain
 	++ payload.current_units.temperature_2m	]]></ee:set-payload>
 					</ee:message>
 				</ee:transform>
+					<error-handler >
+						<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="4553c10a-de70-4544-9e86-f74d850afeb3" >
+							<logger level="INFO" doc:name="Logger" doc:id="929b4e43-16f3-4c75-aad6-e1184e18d76d" />
+						</on-error-propagate>
+					</error-handler>
+				</try>
 			</when>
 			<otherwise >
 				<ee:transform doc:name="Transform Message" doc:id="0325eb7f-8182-432a-ad25-c3cb0c7712c9" >
